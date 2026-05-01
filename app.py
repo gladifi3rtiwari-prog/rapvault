@@ -1,0 +1,293 @@
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+import json
+import os
+from datetime import datetime
+
+app = Flask(__name__)
+app.secret_key = 'rapvault-secret-key-2026'
+
+# ============================================
+# 🔑 ADMIN - ONLY THIS EMAIL GETS FULL CONTROL
+# ============================================
+ADMIN_EMAIL = 'gladifi3rtiwari@gmail.com'
+
+# ============================================
+# Data Storage
+# ============================================
+DATA_DIR = 'data'
+RAPS_FILE = os.path.join(DATA_DIR, 'raps.json')
+USERS_FILE = os.path.join(DATA_DIR, 'users.json')
+SUBS_FILE = os.path.join(DATA_DIR, 'subscribers.json')
+LIKES_FILE = os.path.join(DATA_DIR, 'likes.json')
+COMMENTS_FILE = os.path.join(DATA_DIR, 'comments.json')
+
+os.makedirs(DATA_DIR, exist_ok=True)
+
+def load_json(filepath, default=None):
+    if default is None:
+        default = []
+    try:
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return default
+    except:
+        return default
+
+def save_json(filepath, data):
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def get_raps():
+    return load_json(RAPS_FILE, [])
+
+def get_users():
+    return load_json(USERS_FILE, [])
+
+def get_subscribers():
+    return load_json(SUBS_FILE, [])
+
+def get_likes():
+    return load_json(LIKES_FILE, {})
+
+def get_comments():
+    return load_json(COMMENTS_FILE, {})
+
+def is_admin():
+    user = session.get('user')
+    if user and user.get('email') == ADMIN_EMAIL:
+        return True
+    return False
+
+# Initialize files
+for f, d in [(RAPS_FILE, []), (USERS_FILE, []), (SUBS_FILE, []), (LIKES_FILE, {}), (COMMENTS_FILE, {})]:
+    if not os.path.exists(f):
+        save_json(f, d)
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/api/raps')
+def api_raps():
+    tag = request.args.get('tag', 'all')
+    search = request.args.get('search', '').lower()
+    raps = get_raps()
+    
+    if tag != 'all':
+        raps = [r for r in raps if r.get('tag', '').lower() == tag.lower()]
+    if search:
+        raps = [r for r in raps if 
+                search in r.get('title', '').lower() or 
+                search in r.get('preview', '').lower() or 
+                search in r.get('lyrics', '').lower()]
+    
+    raps.sort(key=lambda x: x.get('date', ''), reverse=True)
+    likes = get_likes()
+    
+    for rap in raps:
+        rid = rap['id']
+        rap['likes_count'] = len(likes.get(rid, {}).get('users', []))
+        rap['likes_users'] = likes.get(rid, {}).get('users', [])
+        rap['comments_count'] = len(get_comments().get(rid, []))
+    
+    return jsonify(raps)
+
+@app.route('/api/rap/<rap_id>')
+def api_rap_detail(rap_id):
+    raps = get_raps()
+    rap = next((r for r in raps if r['id'] == rap_id), None)
+    if not rap:
+        return jsonify({"error": "Rap not found"}), 404
+    
+    likes = get_likes()
+    comments = get_comments()
+    rap['likes_count'] = len(likes.get(rap_id, {}).get('users', []))
+    rap['likes_users'] = likes.get(rap_id, {}).get('users', [])
+    rap['comments'] = comments.get(rap_id, [])
+    
+    return jsonify(rap)
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data = request.json
+    name = data.get('name', '').strip()
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '').strip()
+    subscribe = data.get('subscribe', True)
+    
+    if not name or not email or not password:
+        return jsonify({"error": "All fields required"}), 400
+    
+    users = get_users()
+    if any(u['email'] == email for u in users):
+        return jsonify({"error": "Email already registered"}), 400
+    
+    users.append({
+        "name": name,
+        "email": email,
+        "password": password,
+        "subscribed": subscribe,
+        "role": "admin" if email == ADMIN_EMAIL else "user"
+    })
+    save_json(USERS_FILE, users)
+    
+    if subscribe:
+        subs = get_subscribers()
+        if email not in subs:
+            subs.append(email)
+            save_json(SUBS_FILE, subs)
+    
+    session['user'] = {"name": name, "email": email, "role": "admin" if email == ADMIN_EMAIL else "user"}
+    return jsonify({"success": True, "user": {"name": name, "email": email, "role": "admin" if email == ADMIN_EMAIL else "user"}})
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.json
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '').strip()
+    subscribe = data.get('subscribe', True)
+    
+    if not email or not password:
+        return jsonify({"error": "All fields required"}), 400
+    
+    users = get_users()
+    user = next((u for u in users if u['email'] == email and u['password'] == password), None)
+    
+    if not user:
+        return jsonify({"error": "Invalid email or password"}), 401
+    
+    subs = get_subscribers()
+    if subscribe and email not in subs:
+        subs.append(email)
+        save_json(SUBS_FILE, subs)
+    elif not subscribe and email in subs:
+        subs.remove(email)
+        save_json(SUBS_FILE, subs)
+    
+    session['user'] = {"name": user['name'], "email": user['email'], "role": "admin" if email == ADMIN_EMAIL else "user"}
+    return jsonify({"success": True, "user": {"name": user['name'], "email": user['email'], "role": "admin" if email == ADMIN_EMAIL else "user"}})
+
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    session.pop('user', None)
+    return jsonify({"success": True})
+
+@app.route('/api/user')
+def api_user():
+    user = session.get('user')
+    return jsonify(user) if user else jsonify(None)
+
+@app.route('/api/like/<rap_id>', methods=['POST'])
+def api_like(rap_id):
+    user = session.get('user')
+    if not user:
+        return jsonify({"error": "Please login first"}), 401
+    
+    likes = get_likes()
+    if rap_id not in likes:
+        likes[rap_id] = {"users": []}
+    
+    if user['email'] in likes[rap_id]['users']:
+        likes[rap_id]['users'].remove(user['email'])
+    else:
+        likes[rap_id]['users'].append(user['email'])
+    
+    save_json(LIKES_FILE, likes)
+    return jsonify({"success": True, "likes_count": len(likes[rap_id]['users'])})
+
+@app.route('/api/comment/<rap_id>', methods=['POST'])
+def api_comment(rap_id):
+    user = session.get('user')
+    if not user:
+        return jsonify({"error": "Please login first"}), 401
+    
+    data = request.json
+    text = data.get('text', '').strip()
+    if not text:
+        return jsonify({"error": "Comment cannot be empty"}), 400
+    
+    comments = get_comments()
+    if rap_id not in comments:
+        comments[rap_id] = []
+    
+    comments[rap_id].append({
+        "user": user['name'],
+        "email": user['email'],
+        "text": text,
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+    })
+    
+    save_json(COMMENTS_FILE, comments)
+    return jsonify({"success": True, "comments": comments[rap_id]})
+
+@app.route('/api/admin/post', methods=['POST'])
+def api_admin_post():
+    if not is_admin():
+        return jsonify({"error": "Admin only!"}), 403
+    
+    data = request.json
+    title = data.get('title', '').strip()
+    tag = data.get('tag', '').strip().lower()
+    preview = data.get('preview', '').strip()
+    lyrics = data.get('lyrics', '').strip()
+    
+    if not all([title, tag, preview, lyrics]):
+        return jsonify({"error": "All fields required"}), 400
+    
+    raps = get_raps()
+    new_rap = {
+        "id": f"rap_{len(raps)+1}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "title": title,
+        "tag": tag,
+        "preview": preview,
+        "lyrics": lyrics,
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "featured": False,
+        "posted_by": ADMIN_EMAIL
+    }
+    raps.append(new_rap)
+    save_json(RAPS_FILE, raps)
+    
+    subs = get_subscribers()
+    return jsonify({"success": True, "rap": new_rap, "subscribers_notified": len(subs)})
+
+@app.route('/api/admin/delete/<rap_id>', methods=['DELETE'])
+def api_admin_delete(rap_id):
+    if not is_admin():
+        return jsonify({"error": "Admin only!"}), 403
+    
+    raps = get_raps()
+    raps = [r for r in raps if r['id'] != rap_id]
+    save_json(RAPS_FILE, raps)
+    return jsonify({"success": True})
+
+@app.route('/api/admin/feature/<rap_id>', methods=['POST'])
+def api_admin_feature(rap_id):
+    if not is_admin():
+        return jsonify({"error": "Admin only!"}), 403
+    
+    raps = get_raps()
+    for rap in raps:
+        if rap['id'] == rap_id:
+            rap['featured'] = not rap.get('featured', False)
+    save_json(RAPS_FILE, raps)
+    return jsonify({"success": True})
+
+@app.route('/api/stats')
+def api_stats():
+    raps = get_raps()
+    likes = get_likes()
+    subs = get_subscribers()
+    total_likes = sum(len(l.get('users', [])) for l in likes.values())
+    return jsonify({"raps_count": len(raps), "subscribers_count": len(subs), "total_likes": total_likes})
+
+if __name__ == '__main__':
+    print("=" * 50)
+    print("🎤 RapVault Server Running!")
+    print(f"👑 Admin: {ADMIN_EMAIL}")
+    print("📍 http://127.0.0.1:5000")
+    print("=" * 50)
+    if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
