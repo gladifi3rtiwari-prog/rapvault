@@ -7,9 +7,10 @@ app = Flask(__name__)
 app.secret_key = 'rapvault-secret-key-2026'
 
 # ============================================
-# 🔑 ADMIN - ONLY THIS EMAIL GETS FULL CONTROL
+# 🔑 ADMIN CREDENTIALS
 # ============================================
 ADMIN_EMAIL = 'gladifi3rtiwari@gmail.com'
+ADMIN_PASSWORD = 'kartik2009'
 
 # ============================================
 # Data Storage
@@ -122,6 +123,10 @@ def api_register():
     if not name or not email or not password:
         return jsonify({"error": "All fields required"}), 400
     
+    # Block anyone from registering with admin email
+    if email == ADMIN_EMAIL:
+        return jsonify({"error": "This email is reserved for admin!"}), 403
+    
     users = get_users()
     if any(u['email'] == email for u in users):
         return jsonify({"error": "Email already registered"}), 400
@@ -131,7 +136,7 @@ def api_register():
         "email": email,
         "password": password,
         "subscribed": subscribe,
-        "role": "admin" if email == ADMIN_EMAIL else "user"
+        "role": "user"
     })
     save_json(USERS_FILE, users)
     
@@ -141,8 +146,8 @@ def api_register():
             subs.append(email)
             save_json(SUBS_FILE, subs)
     
-    session['user'] = {"name": name, "email": email, "role": "admin" if email == ADMIN_EMAIL else "user"}
-    return jsonify({"success": True, "user": {"name": name, "email": email, "role": "admin" if email == ADMIN_EMAIL else "user"}})
+    session['user'] = {"name": name, "email": email, "role": "user"}
+    return jsonify({"success": True, "user": {"name": name, "email": email, "role": "user"}})
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
@@ -157,8 +162,25 @@ def api_login():
     if not email or not password:
         return jsonify({"error": "All fields required"}), 400
     
+    # Admin check - requires special password
+    if email == ADMIN_EMAIL:
+        if password != ADMIN_PASSWORD:
+            return jsonify({"error": "Invalid admin password!"}), 401
+    
     users = get_users()
     user = next((u for u in users if u['email'] == email and u['password'] == password), None)
+    
+    # If admin doesn't exist yet, auto-create
+    if not user and email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+        user = {
+            "name": "Kartikeya",
+            "email": ADMIN_EMAIL,
+            "password": ADMIN_PASSWORD,
+            "subscribed": True,
+            "role": "admin"
+        }
+        users.append(user)
+        save_json(USERS_FILE, users)
     
     if not user:
         return jsonify({"error": "Invalid email or password"}), 401
