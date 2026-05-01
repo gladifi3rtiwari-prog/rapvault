@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session
 import json
 import os
 from datetime import datetime
@@ -110,7 +110,10 @@ def api_rap_detail(rap_id):
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
-    data = request.json
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"error": "Invalid data"}), 400
+    
     name = data.get('name', '').strip()
     email = data.get('email', '').strip().lower()
     password = data.get('password', '').strip()
@@ -143,7 +146,10 @@ def api_register():
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
-    data = request.json
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"error": "Invalid data"}), 400
+    
     email = data.get('email', '').strip().lower()
     password = data.get('password', '').strip()
     subscribe = data.get('subscribe', True)
@@ -202,7 +208,10 @@ def api_comment(rap_id):
     if not user:
         return jsonify({"error": "Please login first"}), 401
     
-    data = request.json
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"error": "Invalid data"}), 400
+    
     text = data.get('text', '').strip()
     if not text:
         return jsonify({"error": "Comment cannot be empty"}), 400
@@ -226,7 +235,10 @@ def api_admin_post():
     if not is_admin():
         return jsonify({"error": "Admin only!"}), 403
     
-    data = request.json
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"error": "Invalid data"}), 400
+    
     title = data.get('title', '').strip()
     tag = data.get('tag', '').strip().lower()
     preview = data.get('preview', '').strip()
@@ -283,11 +295,5 @@ def api_stats():
     return jsonify({"raps_count": len(raps), "subscribers_count": len(subs), "total_likes": total_likes})
 
 if __name__ == '__main__':
-    print("=" * 50)
-    print("🎤 RapVault Server Running!")
-    print(f"👑 Admin: {ADMIN_EMAIL}")
-    print("📍 http://127.0.0.1:5000")
-    print("=" * 50)
-    if __name__ == '__main__':
-    	port = int(os.environ.get('PORT', 5000))
-    	app.run(debug=False, host='0.0.0.0', port=port)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
