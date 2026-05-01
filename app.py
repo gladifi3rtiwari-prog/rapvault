@@ -69,6 +69,11 @@ for f, d in [(RAPS_FILE, []), (USERS_FILE, []), (SUBS_FILE, []), (LIKES_FILE, {}
 def home():
     return render_template('index.html')
 
+# Google verification route
+@app.route('/googlea57b609f2753a8e2.html')
+def google_verify():
+    return 'google-site-verification: googlea57b609f2753a8e2.html', 200
+
 @app.route('/api/raps')
 def api_raps():
     tag = request.args.get('tag', 'all')
@@ -123,7 +128,6 @@ def api_register():
     if not name or not email or not password:
         return jsonify({"error": "All fields required"}), 400
     
-    # Block anyone from registering with admin email
     if email == ADMIN_EMAIL:
         return jsonify({"error": "This email is reserved for admin!"}), 403
     
@@ -162,7 +166,6 @@ def api_login():
     if not email or not password:
         return jsonify({"error": "All fields required"}), 400
     
-    # Admin check - requires special password
     if email == ADMIN_EMAIL:
         if password != ADMIN_PASSWORD:
             return jsonify({"error": "Invalid admin password!"}), 401
@@ -170,7 +173,6 @@ def api_login():
     users = get_users()
     user = next((u for u in users if u['email'] == email and u['password'] == password), None)
     
-    # If admin doesn't exist yet, auto-create
     if not user and email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
         user = {
             "name": "Kartikeya",
