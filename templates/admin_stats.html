@@ -1,1 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Stats - RapVault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #060b14; --bg-card: #151d2e; --border: #1e2d45;
+            --blue-bright: #60a5fa; --text-primary: #e8edf4;
+            --text-secondary: #b0bec5; --text-muted: #6b7d95;
+            --gold: #f0b429; --red-like: #f85149; --green: #3fb950;
+            --radius: 12px;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Poppins',sans-serif;background:var(--bg-deep);color:var(--text-primary);padding:2rem;min-height:100vh}
+        h1{font-size:2rem;margin-bottom:1.5rem;color:var(--gold)}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.5rem;margin-bottom:2rem}
+        .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center}
+        .stat-card .number{font-size:2.5rem;font-weight:800;color:var(--blue-bright);margin-bottom:.3rem}
+        .stat-card .label{color:var(--text-muted);font-size:.9rem;text-transform:uppercase}
+        table{width:100%;border-collapse:collapse;margin-top:2rem;background:var(--bg-card);border-radius:var(--radius);overflow:hidden}
+        th,td{padding:1rem;text-align:left;border-bottom:1px solid var(--border)}
+        th{background:rgba(59,130,246,0.1);color:var(--blue-bright);font-weight:600;font-size:.85rem;text-transform:uppercase}
+        td{color:var(--text-secondary)}
+        .back-link{display:inline-block;margin-bottom:2rem;color:var(--blue-bright);text-decoration:none;font-size:.9rem}
+        .back-link:hover{text-decoration:underline}
+        @media(max-width:600px){body{padding:1rem}.stat-card .number{font-size:2rem}}
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← Back to RapVault</a>
+    <h1>📊 Admin Statistics</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number">{{ raps|length }}</div>
+            <div class="label">Total Raps</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ subs|length }}</div>
+            <div class="label">Subscribers</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ total_likes }}</div>
+            <div class="label">Total Likes</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ total_views }}</div>
+            <div class="label">Total Views</div>
+        </div>
+    </div>
 
+    <h2 style="margin-bottom:1rem;">📈 Rap Performance</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Tag</th>
+                <th>Date</th>
+                <th>Likes</th>
+                <th>Views</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rap in raps %}
+            <tr>
+                <td>{{ rap.title }}</td>
+                <td>{{ rap.tag }}</td>
+                <td>{{ rap.date }}</td>
+                <td>{{ likes.get(rap.id, {}).get('users', [])|length }}</td>
+                <td>{{ views.get(rap.id, 0) }}</td>
+                <td>{{ comments.get(rap.id, [])|length }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
