@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'rapvault-secret-key-2026'
@@ -21,6 +21,9 @@ USERS_FILE = os.path.join(DATA_DIR, 'users.json')
 SUBS_FILE = os.path.join(DATA_DIR, 'subscribers.json')
 LIKES_FILE = os.path.join(DATA_DIR, 'likes.json')
 COMMENTS_FILE = os.path.join(DATA_DIR, 'comments.json')
+BIO_FILE = os.path.join(DATA_DIR, 'bio.json')
+VIEWS_FILE = os.path.join(DATA_DIR, 'views.json')
+PINNED_COMMENTS_FILE = os.path.join(DATA_DIR, 'pinned_comments.json')
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
@@ -54,6 +57,15 @@ def get_likes():
 def get_comments():
     return load_json(COMMENTS_FILE, {})
 
+def get_bio():
+    return load_json(BIO_FILE, {"name": "Kartikeya", "bio": "Hindi rap lyricist. Expressing through bars.", "photo": ""})
+
+def get_views():
+    return load_json(VIEWS_FILE, {})
+
+def get_pinned_comments():
+    return load_json(PINNED_COMMENTS_FILE, [])
+
 def is_admin():
     user = session.get('user')
     if user and user.get('email') == ADMIN_EMAIL:
@@ -61,7 +73,7 @@ def is_admin():
     return False
 
 # Initialize files
-for f, d in [(RAPS_FILE, []), (USERS_FILE, []), (SUBS_FILE, []), (LIKES_FILE, {}), (COMMENTS_FILE, {})]:
+for f, d in [(RAPS_FILE, []), (USERS_FILE, []), (SUBS_FILE, []), (LIKES_FILE, {}), (COMMENTS_FILE, {}), (BIO_FILE, {"name": "Kartikeya", "bio": "Hindi rap lyricist.", "photo": ""}), (VIEWS_FILE, {}), (PINNED_COMMENTS_FILE, [])]:
     if not os.path.exists(f):
         save_json(f, d)
 
@@ -69,16 +81,46 @@ for f, d in [(RAPS_FILE, []), (USERS_FILE, []), (SUBS_FILE, []), (LIKES_FILE, {}
 def home():
     return render_template('index.html')
 
-# Google verification route
+# Google verification
 @app.route('/googlea57b609f2753a8e2.html')
 def google_verify():
     return 'google-site-verification: googlea57b609f2753a8e2.html', 200
+
+# Serve manifest for PWA (later)
+@app.route('/static/manifest.json')
+def manifest():
+    return app.send_static_file('manifest.json')
+
+# ============ API ROUTES ============
+
+@app.route('/api/bio', methods=['GET', 'POST'])
+def api_bio():
+    if request.method == 'GET':
+        return jsonify(get_bio())
+    # POST: admin only
+    if not is_admin():
+        return jsonify({"error": "Admin only!"}), 403
+    data = request.get_json(force=True, silent=True) or {}
+    bio = get_bio()
+    if 'name' in data: bio['name'] = data['name'].strip()
+    if 'bio' in data: bio['bio'] = data['bio'].strip()
+    if 'photo' in data: bio['photo'] = data['photo'].strip()
+    save_json(BIO_FILE, bio)
+    return jsonify({"success": True, "bio": bio})
 
 @app.route('/api/raps')
 def api_raps():
     tag = request.args.get('tag', 'all')
     search = request.args.get('search', '').lower()
+    show_drafts = request.args.get('drafts', 'false').lower() == 'true'
     raps = get_raps()
+    
+    if not show_drafts:
+        raps = [r for r in raps if not r.get('is_draft', False)]
+    else:
+        # Only admin sees drafts
+        if not is_admin():
+            raps = [r for r in raps if not r.get('is_draft', False)]
     
     if tag != 'all':
         raps = [r for r in raps if r.get('tag', '').lower() == tag.lower()]
@@ -90,12 +132,14 @@ def api_raps():
     
     raps.sort(key=lambda x: x.get('date', ''), reverse=True)
     likes = get_likes()
+    views = get_views()
     
     for rap in raps:
         rid = rap['id']
         rap['likes_count'] = len(likes.get(rid, {}).get('users', []))
         rap['likes_users'] = likes.get(rid, {}).get('users', [])
         rap['comments_count'] = len(get_comments().get(rid, []))
+        rap['views'] = views.get(rid, 0)
     
     return jsonify(raps)
 
@@ -106,11 +150,17 @@ def api_rap_detail(rap_id):
     if not rap:
         return jsonify({"error": "Rap not found"}), 404
     
+    # Track view
+    views = get_views()
+    views[rap_id] = views.get(rap_id, 0) + 1
+    save_json(VIEWS_FILE, views)
+    
     likes = get_likes()
     comments = get_comments()
     rap['likes_count'] = len(likes.get(rap_id, {}).get('users', []))
     rap['likes_users'] = likes.get(rap_id, {}).get('users', [])
     rap['comments'] = comments.get(rap_id, [])
+    rap['views'] = views.get(rap_id, 0)
     
     return jsonify(rap)
 
@@ -244,15 +294,43 @@ def api_comment(rap_id):
     if rap_id not in comments:
         comments[rap_id] = []
     
-    comments[rap_id].append({
+    comment = {
+        "id": f"c_{len(comments[rap_id])+1}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
         "user": user['name'],
         "email": user['email'],
         "text": text,
-        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
-    })
-    
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "rap_id": rap_id
+    }
+    comments[rap_id].append(comment)
     save_json(COMMENTS_FILE, comments)
-    return jsonify({"success": True, "comments": comments[rap_id]})
+    return jsonify({"success": True, "comment": comment})
+
+@app.route('/api/admin/pin-comment', methods=['POST'])
+def api_pin_comment():
+    if not is_admin():
+        return jsonify({"error": "Admin only!"}), 403
+    data = request.get_json(force=True, silent=True) or {}
+    comment_id = data.get('comment_id')
+    rap_id = data.get('rap_id')
+    if not comment_id or not rap_id:
+        return jsonify({"error": "Missing comment_id or rap_id"}), 400
+    
+    comments = get_comments().get(rap_id, [])
+    comment = next((c for c in comments if c['id'] == comment_id), None)
+    if not comment:
+        return jsonify({"error": "Comment not found"}), 404
+    
+    pinned = get_pinned_comments()
+    if any(c['id'] == comment_id for c in pinned):
+        return jsonify({"error": "Already pinned"}), 400
+    pinned.append(comment)
+    save_json(PINNED_COMMENTS_FILE, pinned)
+    return jsonify({"success": True, "pinned": pinned})
+
+@app.route('/api/pinned-comments')
+def api_pinned_comments():
+    return jsonify(get_pinned_comments())
 
 @app.route('/api/admin/post', methods=['POST'])
 def api_admin_post():
@@ -267,6 +345,8 @@ def api_admin_post():
     tag = data.get('tag', '').strip().lower()
     preview = data.get('preview', '').strip()
     lyrics = data.get('lyrics', '').strip()
+    is_draft = data.get('is_draft', False)
+    release_date = data.get('release_date')  # optional string
     
     if not all([title, tag, preview, lyrics]):
         return jsonify({"error": "All fields required"}), 400
@@ -280,7 +360,9 @@ def api_admin_post():
         "lyrics": lyrics,
         "date": datetime.now().strftime("%Y-%m-%d"),
         "featured": False,
-        "posted_by": ADMIN_EMAIL
+        "posted_by": ADMIN_EMAIL,
+        "is_draft": is_draft,
+        "release_date": release_date if is_draft else None
     }
     raps.append(new_rap)
     save_json(RAPS_FILE, raps)
@@ -315,8 +397,25 @@ def api_stats():
     raps = get_raps()
     likes = get_likes()
     subs = get_subscribers()
+    views = get_views()
     total_likes = sum(len(l.get('users', [])) for l in likes.values())
-    return jsonify({"raps_count": len(raps), "subscribers_count": len(subs), "total_likes": total_likes})
+    total_views = sum(views.values())
+    return jsonify({
+        "raps_count": len(raps),
+        "subscribers_count": len(subs),
+        "total_likes": total_likes,
+        "total_views": total_views
+    })
+
+@app.route('/admin/stats')
+def admin_stats():
+    if not is_admin():
+        return "Access denied", 403
+    raps = get_raps()
+    likes = get_likes()
+    views = get_views()
+    subs = get_subscribers()
+    return render_template('admin_stats.html', raps=raps, likes=likes, views=views, subs=subs)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
