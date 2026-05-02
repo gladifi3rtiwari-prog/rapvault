@@ -27,6 +27,13 @@ PINNED_COMMENTS_FILE = os.path.join(DATA_DIR, 'pinned_comments.json')
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
+# Updated default bio
+DEFAULT_BIO = {
+    "name": "Kartikeya",
+    "bio": "I don’t just write rap — I write my identity.\nEvery line carries hunger, every verse brings fire.\nThis platform is my voice, where nothing is filtered and everything is real.\nIf you feel it, you already know — this is more than music, it’s a legacy in the making",
+    "photo": ""
+}
+
 def load_json(filepath, default=None):
     if default is None:
         default = []
@@ -58,7 +65,7 @@ def get_comments():
     return load_json(COMMENTS_FILE, {})
 
 def get_bio():
-    return load_json(BIO_FILE, {"name": "Kartikeya", "bio": "Hindi rap lyricist. Expressing through bars.", "photo": ""})
+    return load_json(BIO_FILE, DEFAULT_BIO)
 
 def get_views():
     return load_json(VIEWS_FILE, {})
@@ -73,7 +80,7 @@ def is_admin():
     return False
 
 # Initialize files
-for f, d in [(RAPS_FILE, []), (USERS_FILE, []), (SUBS_FILE, []), (LIKES_FILE, {}), (COMMENTS_FILE, {}), (BIO_FILE, {"name": "Kartikeya", "bio": "Hindi rap lyricist.", "photo": ""}), (VIEWS_FILE, {}), (PINNED_COMMENTS_FILE, [])]:
+for f, d in [(RAPS_FILE, []), (USERS_FILE, []), (SUBS_FILE, []), (LIKES_FILE, {}), (COMMENTS_FILE, {}), (BIO_FILE, DEFAULT_BIO), (VIEWS_FILE, {}), (PINNED_COMMENTS_FILE, [])]:
     if not os.path.exists(f):
         save_json(f, d)
 
@@ -81,15 +88,10 @@ for f, d in [(RAPS_FILE, []), (USERS_FILE, []), (SUBS_FILE, []), (LIKES_FILE, {}
 def home():
     return render_template('index.html')
 
-# Google verification
+# Google verification (unchanged)
 @app.route('/googlea57b609f2753a8e2.html')
 def google_verify():
     return 'google-site-verification: googlea57b609f2753a8e2.html', 200
-
-# Serve manifest for PWA (later)
-@app.route('/static/manifest.json')
-def manifest():
-    return app.send_static_file('manifest.json')
 
 # ============ API ROUTES ============
 
