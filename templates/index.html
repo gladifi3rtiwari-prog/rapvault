@@ -4,23 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RapVault - Hindi Rap Lyrics</title>
-    <!-- PWA Meta -->
-    <meta name="application-name" content="RapVault">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="RapVault">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#060b14">
-    <link rel="manifest" href="/static/manifest.json">
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/gladifi3rtiwari-prog/rapvault/main/ChatGPTImageMay1202610_29_31A.jpeg">
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Hind:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-deep: #060b14; --bg-card: #151d2e; --bg-card-hover: #1a2338;
-            --bg-modal: #111b2b; --border: #1e2d45; --border-light: #263550;
-            --blue-primary: #3b82f6; --blue-bright: #60a5fa;
+            --bg-deep: #060b14; --bg-primary: #0a0f1d; --bg-card: #151d2e;
+            --bg-card-hover: #1a2338; --bg-modal: #111b2b; --border: #1e2d45;
+            --border-light: #263550; --blue-primary: #3b82f6; --blue-bright: #60a5fa;
             --text-primary: #e8edf4; --text-secondary: #b0bec5; --text-muted: #6b7d95;
             --white: #ffffff; --red-like: #f85149; --green: #3fb950; --gold: #f0b429;
             --gradient-2: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #60a5fa 100%);
@@ -41,8 +31,6 @@
         .btn-primary{background:var(--gradient-2);color:#fff}.btn-primary:hover{transform:translateY(-2px)}
         .btn-sm{padding:7px 15px;font-size:.8rem}
         .btn-danger{background:transparent;border:2px solid var(--red-like);color:var(--red-like)}
-        .btn-google{background:#fff;color:#333;border:2px solid #ddd;font-weight:500;width:100%;padding:13px;border-radius:50px;cursor:pointer;font-family:inherit;font-size:1rem;transition:all .3s ease;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:10px}
-        .btn-google:hover{border-color:#4285f4;transform:translateY(-2px)}
         .user-avatar{width:38px;height:38px;border-radius:50%;background:var(--gradient-2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;cursor:pointer;color:#fff;border:2px solid transparent;transition:var(--transition)}
         .user-avatar.admin{border-color:var(--gold)}.user-avatar:hover{border-color:var(--blue-bright)}
         .main-container{max-width:1300px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
@@ -58,6 +46,7 @@
         .search-section{padding:0 0 2rem}.search-wrapper{max-width:600px;margin:0 auto;position:relative}
         .search-input{width:100%;padding:14px 50px 14px 20px;border-radius:50px;border:2px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:1rem;font-family:inherit;outline:none}
         .search-input:focus{border-color:var(--blue-bright)}.search-input::placeholder{color:var(--text-muted)}
+        .search-icon{position:absolute;right:18px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none}
         .search-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
         .search-tag{padding:5px 14px;border-radius:50px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);font-size:.8rem;cursor:pointer;transition:var(--transition);font-family:inherit}
         .search-tag:hover,.search-tag.active{border-color:var(--blue-bright);color:var(--blue-bright);background:rgba(59,130,246,0.08)}
@@ -70,12 +59,47 @@
         .rap-card-badge.featured{background:rgba(240,180,41,0.15);color:var(--gold)}.rap-card-badge.new{background:rgba(63,185,80,0.15);color:var(--green)}.rap-card-badge.draft{background:rgba(255,255,255,0.1);color:#aaa}
         .rap-card-title{font-size:1.3rem;font-weight:700;color:var(--white);margin-bottom:.5rem}
         .rap-card-preview{color:var(--text-muted);font-size:.9rem;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:1rem}
+        .rap-card-meta{display:flex;justify-content:space-between;align-items:center;color:var(--text-muted);font-size:.8rem}
+        .like-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;transition:var(--transition);display:flex;align-items:center;gap:4px;font-family:inherit;padding:5px 10px;border-radius:20px}
+        .like-btn:hover{color:var(--red-like)}.like-btn.liked{color:var(--red-like)}
+        .admin-actions{position:absolute;top:10px;right:10px;display:none;gap:5px}
+        .rap-card:hover .admin-actions{display:flex}
+        .admin-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center}
+        .admin-btn:hover{color:var(--gold);border-color:var(--gold)}.admin-btn.delete:hover{color:var(--red-like);border-color:var(--red-like)}
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+        .modal-overlay.active{opacity:1;pointer-events:all}
+        .modal{background:var(--bg-modal);border:1px solid var(--border);border-radius:16px;padding:2rem;width:90%;max-width:550px;max-height:85vh;overflow-y:auto;position:relative}
+        .modal-close{position:absolute;top:15px;right:18px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);width:35px;height:35px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;z-index:10}
+        .modal-close:hover{color:var(--white);border-color:var(--red-like)}
+        .modal h2{font-size:1.5rem;font-weight:700;margin-bottom:.5rem}.modal .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:1.5rem}
+        .form-group{margin-bottom:1.2rem}.form-group label{display:block;font-weight:500;margin-bottom:6px;font-size:.9rem;color:var(--text-secondary)}
+        .form-group input,.form-group textarea{width:100%;padding:12px 16px;border-radius:8px;border:2px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-family:inherit;font-size:.95rem;outline:none}
+        .form-group textarea{min-height:120px;resize:vertical;line-height:1.8}.form-group input:focus,.form-group textarea:focus{border-color:var(--blue-bright)}
+        .checkbox-group{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9rem;color:var(--text-secondary);margin-bottom:1rem}
+        .checkbox-group input{width:18px;height:18px;accent-color:var(--blue-primary)}
+        .modal .btn{width:100%;justify-content:center;padding:13px;font-size:1rem}
+        .modal-footer-text{text-align:center;margin-top:1rem;font-size:.85rem;color:var(--text-muted)}.modal-footer-text a{color:var(--blue-bright);cursor:pointer}
+        .rap-detail-content .rap-full-lyrics{font-family:'Hind',sans-serif;font-size:1.05rem;line-height:2;white-space:pre-line;color:var(--text-primary);background:var(--bg-card);padding:1.5rem;border-radius:8px;border:1px solid var(--border);margin:1rem 0}
+        .rap-detail-content .rap-title-large{font-size:1.8rem;font-weight:800}
+        .comments-section{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.5rem}
+        .comment{background:var(--bg-card);padding:12px 16px;border-radius:8px;margin-bottom:10px;border:1px solid var(--border)}
+        .comment .comment-user{font-weight:600;font-size:.85rem;color:var(--blue-bright)}.comment .comment-text{font-size:.9rem;color:var(--text-secondary);margin-top:4px}.comment .comment-time{font-size:.7rem;color:var(--text-muted);margin-top:4px}
+        .comment-form{display:flex;gap:10px;margin-top:1rem}.comment-form input{flex:1;padding:10px 14px;border-radius:50px;border:2px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-family:inherit;outline:none}
+        .admin-panel{background:var(--bg-card);border:1px dashed var(--gold);border-radius:var(--radius-lg);padding:2rem;margin:2rem 0;display:none}
+        .admin-panel.visible{display:block}.admin-panel h3{margin-bottom:1rem;color:var(--gold)}
+        .toast-container{position:fixed;bottom:25px;right:25px;z-index:3000;display:flex;flex-direction:column;gap:10px}
+        .toast{padding:14px 22px;border-radius:50px;color:#fff;font-weight:500;font-size:.9rem;animation:slideIn .4s ease;display:flex;align-items:center;gap:10px}
+        .toast.success{background:#1a3a2a;border:1px solid var(--green)}.toast.info{background:#1a2a3a;border:1px solid var(--blue-bright)}.toast.error{background:#3a1a1a;border:1px solid var(--red-like)}
+        @keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+        .no-raps{text-align:center;padding:4rem 2rem;color:var(--text-muted);grid-column:1/-1}.no-raps i{font-size:3rem;display:block;margin-bottom:1rem;opacity:.4}
+        .footer{border-top:1px solid var(--border);padding:2rem;text-align:center;color:var(--text-muted);font-size:.85rem;background:var(--bg-secondary)}
         .reading-mode{position:fixed;top:0;left:0;width:100%;height:100%;background:#060b14;z-index:3000;display:none;padding:2rem;overflow-y:auto}
         .reading-mode.active{display:block}
         .reading-content{max-width:800px;margin:0 auto;white-space:pre-line;font-family:'Hind',sans-serif;font-size:1.2rem;line-height:2;color:var(--text-primary)}
-        .reading-close{position:fixed;top:20px;right:20px;background:var(--bg-card);border:1px solid var(--border);color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.2rem}
+        .reading-close{position:fixed;top:20px;right:20px;background:var(--bg-card);border:1px solid var(--border);color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;z-index:3001}
         .pinned-comments{background:var(--bg-card);border:1px solid var(--gold);border-radius:var(--radius-lg);padding:1.5rem;margin:2rem 0}
         .admin-stats-link{color:var(--gold);font-size:.9rem;text-decoration:underline;cursor:pointer}
+        @media(max-width:768px){.navbar{padding:0 1rem}.hero h1{font-size:2.2rem}.raps-grid{grid-template-columns:1fr}.hero-stats{gap:1.5rem}.hero-stat .number{font-size:1.6rem}.main-container{padding:0 1rem}.modal{width:95%;padding:1.5rem}}
     </style>
 </head>
 <body>
@@ -91,13 +115,14 @@
             </div>
         </div>
     </nav>
+
     <div class="main-container">
         <!-- Bio Section -->
         <div class="bio-section" id="bioSection">
             <img src="" alt="Artist" class="bio-photo" id="bioPhoto" style="display:none;">
             <div>
                 <h2 id="bioName"></h2>
-                <p id="bioText" style="color:var(--text-secondary);"></p>
+                <p id="bioText" style="color:var(--text-secondary); white-space: pre-line;"></p>
                 <button class="btn btn-sm btn-outline" id="editBioBtn" style="display:none;" onclick="openBioEditor()">Edit Bio</button>
             </div>
         </div>
@@ -134,7 +159,8 @@
 
         <div class="section-header"><h2 class="section-title"><i class="fas fa-fire"></i> Latest Raps</h2><span style="color:var(--text-muted);font-size:.85rem" id="resultCount"></span></div>
         <div class="raps-grid" id="rapsGrid"></div>
-        <div class="admin-panel" id="adminPanel" style="display:none;">
+
+        <div class="admin-panel" id="adminPanel">
             <h3>👑 Admin Panel — Post New Rap</h3>
             <div class="form-group"><label>Rap Title</label><input type="text" id="adminTitle"></div>
             <div class="form-group"><label>Tag</label><input type="text" id="adminTag"></div>
@@ -147,23 +173,323 @@
         </div>
     </div>
 
+    <footer class="footer"><p>© 2026 RapVault — Hindi Rap Lyrics. Built for the culture. ❤️</p></footer>
+
     <!-- Reading Mode -->
     <div class="reading-mode" id="readingMode">
         <button class="reading-close" onclick="closeReadingMode()">✕</button>
         <div class="reading-content" id="readingContent"></div>
     </div>
 
-    <!-- Modals (Login/Register/Detail) same as before, plus bio editor -->
-    <div class="modal-overlay" id="loginModal"><div class="modal">... (login form same as before) ...</div></div>
-    <div class="modal-overlay" id="registerModal"><div class="modal">... (register form same as before) ...</div></div>
-    <div class="modal-overlay" id="rapDetailModal"><div class="modal" style="max-width:700px"><button class="modal-close" onclick="closeModal('rapDetailModal')">&times;</button><div class="rap-detail-content" id="rapDetailContent"></div></div></div>
-    <div class="modal-overlay" id="bioEditModal"><div class="modal"><button class="modal-close" onclick="closeModal('bioEditModal')">&times;</button><h2>Edit Artist Bio</h2><div class="form-group"><label>Name</label><input type="text" id="bioNameInput"></div><div class="form-group"><label>Bio</label><textarea id="bioBioInput" rows="4"></textarea></div><div class="form-group"><label>Photo URL</label><input type="text" id="bioPhotoInput"></div><button class="btn btn-primary" onclick="saveBio()">Save</button></div></div>
+    <!-- Modals -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+            <h2>Welcome Back 👋</h2>
+            <p class="subtitle">Login to like, comment, and get notified.</p>
+            <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+            <div class="checkbox-group"><input type="checkbox" id="loginSubscribe" checked><label>Notify me about new raps</label></div>
+            <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+            <p class="modal-footer-text">No account? <a onclick="switchModals('loginModal','registerModal')">Register</a></p>
+        </div>
+    </div>
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
+            <h2>Join the Vault 🔐</h2>
+            <p class="subtitle">Create an account to stay connected.</p>
+            <div class="form-group"><label>Name</label><input type="text" id="regName" placeholder="Your name"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="regPassword" placeholder="Create password"></div>
+            <div class="checkbox-group"><input type="checkbox" id="regSubscribe" checked><label>Notify me about new raps</label></div>
+            <button class="btn btn-primary" onclick="handleRegister()">Create Account</button>
+            <p class="modal-footer-text">Have an account? <a onclick="switchModals('registerModal','loginModal')">Login</a></p>
+        </div>
+    </div>
+    <div class="modal-overlay" id="rapDetailModal">
+        <div class="modal" style="max-width:700px">
+            <button class="modal-close" onclick="closeModal('rapDetailModal')">&times;</button>
+            <div class="rap-detail-content" id="rapDetailContent"></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="bioEditModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('bioEditModal')">&times;</button>
+            <h2>Edit Artist Bio</h2>
+            <div class="form-group"><label>Name</label><input type="text" id="bioNameInput"></div>
+            <div class="form-group"><label>Bio</label><textarea id="bioBioInput" rows="3"></textarea></div>
+            <div class="form-group"><label>Photo URL</label><input type="text" id="bioPhotoInput"></div>
+            <button class="btn btn-primary" onclick="saveBio()">Save</button>
+        </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // All JS code with new features
-        // (compressed but complete; includes typewriter, reading mode, bio, drafts, shoutouts, etc.)
-        // ... (I'll provide the full JS block in the next message due to length)
+        let currentTag='all',currentUser=null,isAdmin=false;
+
+        async function init(){
+            await checkLoginStatus();
+            loadBio();
+            loadPinnedComments();
+            loadRaps();
+            loadStats();
+            document.getElementById('adminDraft').addEventListener('change',function(){
+                document.getElementById('releaseDateGroup').style.display=this.checked?'block':'none';
+            });
+        }
+
+        async function checkLoginStatus(){
+            try{
+                const r=await fetch('/api/user');
+                const u=await r.json();
+                if(u&&u.email){currentUser=u;isAdmin=(u.role==='admin');updateUIForLoggedInUser(true);}
+                else updateUIForLoggedInUser(false);
+            }catch(e){updateUIForLoggedInUser(false);}
+        }
+
+        function updateUIForLoggedInUser(l){
+            document.getElementById('btnLogin').style.display=l?'none':'';
+            document.getElementById('userBadge').style.display=l?'block':'none';
+            if(l&&currentUser){
+                let a=document.getElementById('userAvatar');
+                a.textContent=currentUser.name.charAt(0).toUpperCase();
+                a.title=currentUser.name+(isAdmin?' (Admin)':' (Fan)')+' - Click to logout';
+                a.classList.toggle('admin',isAdmin);
+                document.getElementById('adminPanel').style.display=isAdmin?'block':'none';
+                document.getElementById('editBioBtn').style.display=isAdmin?'inline-flex':'none';
+            } else {
+                document.getElementById('adminPanel').style.display='none';
+                document.getElementById('editBioBtn').style.display='none';
+            }
+        }
+
+        async function loadBio(){
+            const r=await fetch('/api/bio');
+            const bio=await r.json();
+            document.getElementById('bioName').textContent=bio.name||'Artist';
+            document.getElementById('bioText').textContent=bio.bio||'';
+            const img=document.getElementById('bioPhoto');
+            if(bio.photo){ img.src=bio.photo; img.style.display='block'; }
+            else img.style.display='none';
+        }
+
+        function openBioEditor(){
+            if(!isAdmin)return;
+            fetch('/api/bio').then(r=>r.json()).then(b=>{
+                document.getElementById('bioNameInput').value=b.name||'';
+                document.getElementById('bioBioInput').value=b.bio||'';
+                document.getElementById('bioPhotoInput').value=b.photo||'';
+            });
+            openModal('bioEditModal');
+        }
+
+        async function saveBio(){
+            const name=document.getElementById('bioNameInput').value.trim();
+            const bio=document.getElementById('bioBioInput').value.trim();
+            const photo=document.getElementById('bioPhotoInput').value.trim();
+            await fetch('/api/bio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,bio,photo})});
+            closeModal('bioEditModal');
+            loadBio();
+            showToast('Bio updated!','success');
+        }
+
+        async function loadRaps(){
+            const s=document.getElementById('searchInput').value;
+            const p=new URLSearchParams(); p.append('tag',currentTag); if(s)p.append('search',s);
+            const r=await fetch('/api/raps?'+p.toString());
+            const raps=await r.json();
+            renderRaps(raps);
+        }
+
+        function renderRaps(raps){
+            const g=document.getElementById('rapsGrid');
+            document.getElementById('resultCount').textContent=raps.length+' rap(s)';
+            if(!raps.length){g.innerHTML='<div class="no-raps"><i class="fas fa-microphone"></i><p>No raps yet.</p></div>';return;}
+            g.innerHTML=raps.map(rap=>{
+                const isDraft=rap.is_draft;
+                const isNew=(new Date()-new Date(rap.date))<7*24*60*60*1000;
+                const isLiked=currentUser&&rap.likes_users&&rap.likes_users.includes(currentUser.email);
+                let badge='';
+                if(isDraft) badge='<span class="rap-card-badge draft">📅 Coming Soon</span>';
+                else if(rap.featured) badge='<span class="rap-card-badge featured">⭐ Featured</span>';
+                else if(isNew) badge='<span class="rap-card-badge new">🆕 New</span>';
+                else badge=`<span class="rap-card-badge">${rap.tag}</span>`;
+                return `<div class="rap-card" onclick="${isDraft?'':'openRapDetail(\''+rap.id+'\')'}">
+                    ${isAdmin?`<div class="admin-actions"><button class="admin-btn" onclick="event.stopPropagation();toggleFeature('${rap.id}')">⭐</button><button class="admin-btn delete" onclick="event.stopPropagation();deleteRap('${rap.id}')">🗑</button></div>`:''}
+                    ${badge}
+                    <div class="rap-card-title">${escapeHTML(rap.title)}</div>
+                    <div class="rap-card-preview">${escapeHTML(rap.preview)}</div>
+                    <div class="rap-card-meta"><span><i class="far fa-calendar"></i> ${rap.date}</span><div style="display:flex;gap:12px"><button class="like-btn ${isLiked?'liked':''}" onclick="event.stopPropagation();toggleLike('${rap.id}')"><i class="${isLiked?'fas':'far'} fa-heart"></i> ${rap.likes_count||0}</button><span><i class="far fa-eye"></i> ${rap.views||0}</span><span><i class="far fa-comment"></i> ${rap.comments_count||0}</span></div></div></div>`;
+            }).join('');
+        }
+
+        async function openRapDetail(rid){
+            const r=await fetch('/api/rap/'+rid);
+            const rap=await r.json();
+            if(rap.error){showToast(rap.error,'error');return;}
+            const isLiked=currentUser&&rap.likes_users&&rap.likes_users.includes(currentUser.email);
+            const comments=rap.comments||[];
+            document.getElementById('rapDetailContent').innerHTML=`
+                <span class="rap-card-badge ${rap.featured?'featured':''}">${rap.featured?'⭐ Featured':rap.tag}</span>
+                <div class="rap-title-large">${escapeHTML(rap.title)}</div>
+                <span style="color:var(--text-muted);font-size:.85rem"><i class="far fa-calendar"></i> ${rap.date} · <i class="far fa-eye"></i> ${rap.views||0}</span>
+                <div style="margin:8px 0"><button class="like-btn ${isLiked?'liked':''}" onclick="toggleLike('${rap.id}');setTimeout(()=>openRapDetail('${rap.id}'),300)"><i class="${isLiked?'fas':'far'} fa-heart"></i> ${rap.likes_count||0} Likes</button> <button class="btn btn-sm btn-outline" onclick="startTypewriter('${rap.id}')"><i class="fas fa-play"></i> Typewriter</button> <button class="btn btn-sm btn-outline" onclick="openReadingMode('${rap.id}')"><i class="fas fa-book-reader"></i> Reading Mode</button></div>
+                <div class="rap-full-lyrics" id="lyricsContainer_${rap.id}">${escapeHTML(rap.lyrics)}</div>
+                <div class="comments-section"><h4>💬 Comments (${comments.length})</h4>
+                ${comments.slice().reverse().map(c=>`<div class="comment"><div class="comment-user">${escapeHTML(c.user)} ${isAdmin?`<span style="font-size:.7rem;color:var(--gold);cursor:pointer" onclick="pinComment('${c.id}','${rap.id}')">📌 Pin</span>`:''}</div><div class="comment-text">${escapeHTML(c.text)}</div><div class="comment-time">${c.date}</div></div>`).join('')}
+                <div class="comment-form"><input type="text" id="commentInput_${rap.id}" placeholder="Write a comment..." onkeydown="if(event.key==='Enter')addComment('${rap.id}')"><button class="btn btn-primary btn-sm" onclick="addComment('${rap.id}')"><i class="fas fa-paper-plane"></i></button></div></div>`;
+            openModal('rapDetailModal');
+        }
+
+        function startTypewriter(rid){
+            const el=document.getElementById('lyricsContainer_'+rid);
+            const text=el.textContent;
+            el.textContent='';
+            let i=0;
+            const interval=setInterval(()=>{el.textContent+=text[i];i++;if(i>=text.length)clearInterval(interval);},10);
+        }
+
+        function openReadingMode(rid){
+            const lyrics=document.getElementById('lyricsContainer_'+rid).textContent;
+            document.getElementById('readingContent').textContent=lyrics;
+            document.getElementById('readingMode').classList.add('active');
+        }
+        function closeReadingMode(){document.getElementById('readingMode').classList.remove('active');}
+
+        async function pinComment(cid,rid){
+            if(!isAdmin)return;
+            await fetch('/api/admin/pin-comment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment_id:cid,rap_id:rid})});
+            showToast('Comment pinned!','success');
+            loadPinnedComments();
+        }
+
+        async function loadPinnedComments(){
+            const r=await fetch('/api/pinned-comments');
+            const pinned=await r.json();
+            const div=document.getElementById('pinnedComments');
+            if(pinned.length===0){div.style.display='none';return;}
+            div.style.display='block';
+            document.getElementById('pinnedList').innerHTML=pinned.map(c=>`<p><strong>${escapeHTML(c.user)}</strong>: ${escapeHTML(c.text)}</p>`).join('');
+        }
+
+        async function toggleLike(rid){
+            if(!currentUser){showToast('Please login!','info');openModal('loginModal');return}
+            await fetch('/api/like/'+rid,{method:'POST'});
+            loadRaps();loadStats();
+        }
+
+        async function addComment(rid){
+            if(!currentUser){showToast('Please login!','info');openModal('loginModal');return}
+            const inp=document.getElementById('commentInput_'+rid);
+            const text=inp?inp.value.trim():'';
+            if(!text)return;
+            await fetch('/api/comment/'+rid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+            inp.value='';
+            openRapDetail(rid);
+            showToast('Comment added!','success');
+        }
+
+        async function handleLogin(){
+            const email=document.getElementById('loginEmail').value.trim();
+            const password=document.getElementById('loginPassword').value.trim();
+            const subscribe=document.getElementById('loginSubscribe').checked;
+            if(!email||!password){showToast('Fill all fields!','info');return}
+            const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password,subscribe})});
+            const d=await r.json();
+            if(d.success){
+                currentUser=d.user;isAdmin=(d.user.role==='admin');
+                updateUIForLoggedInUser(true);
+                closeModal('loginModal');
+                showToast('Welcome, '+d.user.name+'!','success');
+                loadRaps();loadStats();
+            }else{showToast(d.error,'error');}
+        }
+
+        async function handleRegister(){
+            const name=document.getElementById('regName').value.trim();
+            const email=document.getElementById('regEmail').value.trim();
+            const password=document.getElementById('regPassword').value.trim();
+            const subscribe=document.getElementById('regSubscribe').checked;
+            if(!name||!email||!password){showToast('Fill all fields!','info');return}
+            const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password,subscribe})});
+            const d=await r.json();
+            if(d.success){
+                currentUser=d.user;isAdmin=(d.user.role==='admin');
+                updateUIForLoggedInUser(true);
+                closeModal('registerModal');
+                showToast('Welcome, '+d.user.name+'!','success');
+                loadRaps();loadStats();
+            }else{showToast(d.error,'error');}
+        }
+
+        async function handleLogout(){
+            await fetch('/api/logout',{method:'POST'});
+            currentUser=null;isAdmin=false;
+            updateUIForLoggedInUser(false);
+            showToast('Logged out','info');
+            loadRaps();
+        }
+
+        async function postNewRap(){
+            if(!isAdmin)return;
+            const title=document.getElementById('adminTitle').value.trim();
+            const tag=document.getElementById('adminTag').value.trim();
+            const preview=document.getElementById('adminPreview').value.trim();
+            const lyrics=document.getElementById('adminLyrics').value.trim();
+            const isDraft=document.getElementById('adminDraft').checked;
+            const releaseDate=document.getElementById('adminReleaseDate').value;
+            if(!title||!tag||!preview||!lyrics){showToast('Fill all fields','info');return}
+            await fetch('/api/admin/post',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,tag,preview,lyrics,is_draft:isDraft,release_date:releaseDate||null})});
+            document.getElementById('adminTitle').value='';document.getElementById('adminTag').value='';document.getElementById('adminPreview').value='';document.getElementById('adminLyrics').value='';document.getElementById('adminDraft').checked=false;
+            loadRaps();loadStats();
+            showToast('Rap published!','success');
+        }
+
+        async function deleteRap(rid){
+            if(!isAdmin||!confirm('Delete?'))return;
+            await fetch('/api/admin/delete/'+rid,{method:'DELETE'});
+            loadRaps();loadStats();
+        }
+
+        async function toggleFeature(rid){
+            if(!isAdmin)return;
+            await fetch('/api/admin/feature/'+rid,{method:'POST'});
+            loadRaps();
+        }
+
+        async function loadStats(){
+            const r=await fetch('/api/stats');
+            const s=await r.json();
+            document.getElementById('statRapCount').textContent=s.raps_count;
+            document.getElementById('statSubs').textContent=s.subscribers_count;
+            document.getElementById('statLikes').textContent=s.total_likes;
+        }
+
+        function setTag(tag,el){
+            currentTag=tag;
+            document.querySelectorAll('.search-tag').forEach(t=>t.classList.remove('active'));
+            if(el)el.classList.add('active');
+            loadRaps();
+        }
+
+        function openModal(id){document.getElementById(id).classList.add('active');document.body.style.overflow='hidden';}
+        function closeModal(id){document.getElementById(id).classList.remove('active');document.body.style.overflow='';}
+        function switchModals(c,o){closeModal(c);setTimeout(()=>openModal(o),200);}
+        function showToast(msg,type='info'){
+            const c=document.getElementById('toastContainer');
+            const t=document.createElement('div');
+            t.className='toast '+type;
+            const icons={success:'✅',info:'ℹ️',error:'❌'};
+            t.innerHTML='<span>'+(icons[type]||'ℹ️')+'</span> '+msg;
+            c.appendChild(t);
+            setTimeout(()=>t.remove(),3500);
+        }
+        function escapeHTML(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML;}
+        document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')){e.target.classList.remove('active');document.body.style.overflow='';}});
+        document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.active').forEach(m=>m.classList.remove('active'));document.body.style.overflow='';}});
+        init();
     </script>
 </body>
 </html>
