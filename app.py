@@ -109,7 +109,7 @@ for f, d in [(RAPS_FILE, []), (USERS_FILE, []), (SUBS_FILE, []), (LIKES_FILE, {}
 # ============================================
 @app.route('/login/google')
 def login_google():
-    redirect_uri = url_for('authorize_google', _external=True)
+    redirect_uri = 'https://rapvault.onrender.com/login/google/callback'
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/login/google/callback')
