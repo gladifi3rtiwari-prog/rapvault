@@ -146,11 +146,144 @@ def google_login_markup():
 """
 
 
+def cinematic_animation_markup():
+    return """
+    <div class="cinematic-intro" id="cinematicIntro">
+        <div class="intro-grid"></div>
+        <div class="intro-orbit orbit-one"></div>
+        <div class="intro-orbit orbit-two"></div>
+        <div class="intro-logo-wrap">
+            <img src="https://raw.githubusercontent.com/gladifi3rtiwari-prog/rapvault/main/ChatGPTImageMay1202610_29_31A.jpeg" alt="RapVault" class="intro-logo">
+            <div class="intro-ring"></div>
+        </div>
+        <div class="intro-copy">
+            <span>Entering</span>
+            <strong>RapVault</strong>
+            <em>bars loading...</em>
+        </div>
+        <div class="intro-bars">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+    </div>
+"""
+
+
+def cinematic_animation_css():
+    return """
+
+        /* ========== CINEMATIC MOTION UPGRADE ========== */
+        .cinematic-intro{
+            position:fixed;inset:0;z-index:12000;display:flex;align-items:center;justify-content:center;
+            background:#020712;overflow:hidden;animation:cinematicExit .9s ease forwards 4.9s;
+        }
+        .intro-grid{
+            position:absolute;inset:-20%;opacity:.35;
+            background:
+                linear-gradient(rgba(96,165,250,.12) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(96,165,250,.12) 1px,transparent 1px);
+            background-size:58px 58px;transform:perspective(650px) rotateX(58deg) translateY(18%);
+            animation:gridRush 4.8s cubic-bezier(.2,.8,.2,1) forwards;
+        }
+        .cinematic-intro::before,.cinematic-intro::after{
+            content:"";position:absolute;width:90vmax;height:90vmax;border-radius:50%;filter:blur(34px);opacity:.5;
+            background:conic-gradient(from 90deg,transparent,#2563eb,transparent,#f0b429,transparent);
+            animation:spinGlow 5.2s linear infinite;
+        }
+        .cinematic-intro::after{width:60vmax;height:60vmax;animation-direction:reverse;opacity:.28}
+        .intro-orbit{position:absolute;border:1px solid rgba(96,165,250,.28);border-radius:50%;animation:orbitPulse 2.4s ease-in-out infinite}
+        .orbit-one{width:420px;height:420px}.orbit-two{width:610px;height:610px;animation-delay:.35s}
+        .intro-logo-wrap{position:relative;width:176px;height:176px;display:grid;place-items:center;animation:logoLaunch 4.7s cubic-bezier(.15,.85,.25,1) forwards}
+        .intro-logo{width:138px;height:138px;border-radius:28px;object-fit:cover;box-shadow:0 0 55px rgba(96,165,250,.72);animation:logoBeat .82s ease-in-out infinite}
+        .intro-ring{position:absolute;inset:0;border-radius:34px;border:2px solid rgba(240,180,41,.7);animation:ringSnap 1.15s ease-in-out infinite}
+        .intro-copy{position:absolute;bottom:17%;text-align:center;text-transform:uppercase;letter-spacing:0;font-family:'Poppins',sans-serif}
+        .intro-copy span,.intro-copy em{display:block;color:var(--text-secondary);font-style:normal;font-size:.85rem;opacity:0;animation:copyRise .7s ease forwards .55s}
+        .intro-copy strong{display:block;font-size:clamp(3rem,9vw,8rem);font-weight:900;line-height:.95;background:var(--gradient-2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:titleSlam 1s cubic-bezier(.2,.9,.15,1) forwards .95s}
+        .intro-copy em{animation-delay:1.55s;color:var(--gold)}
+        .intro-bars{position:absolute;bottom:9%;display:flex;gap:9px;align-items:end;height:54px}
+        .intro-bars span{display:block;width:9px;border-radius:9px;background:var(--blue-bright);animation:barBounce .58s ease-in-out infinite}
+        .intro-bars span:nth-child(2){animation-delay:.08s;background:#fff}.intro-bars span:nth-child(3){animation-delay:.16s;background:var(--gold)}.intro-bars span:nth-child(4){animation-delay:.24s;background:#fff}.intro-bars span:nth-child(5){animation-delay:.32s;background:var(--blue-bright)}
+        .main-site{animation:siteIn .6s ease forwards 5.15s}
+        .splash{display:none}
+        .logo img{animation:floatLogo 3.8s ease-in-out infinite}
+        .hero-badge{animation:badgePulse 2.2s ease-in-out infinite}
+        .hero h1{animation:heroLift .9s ease both 5.25s}
+        .hero p,.hero-stats,.search-section,.bio-section{animation:softReveal .9s ease both 5.45s}
+        .rap-card,.pinned-comments,.admin-panel{opacity:0;transform:translateY(22px) scale(.98)}
+        .rap-card.revealed,.pinned-comments.revealed,.admin-panel.revealed{animation:cardReveal .72s ease forwards}
+        .rap-card::after{
+            content:"";position:absolute;inset:0;border-radius:var(--radius-lg);pointer-events:none;opacity:0;
+            background:linear-gradient(120deg,transparent,rgba(255,255,255,.1),transparent);
+            transform:translateX(-120%);transition:opacity .3s ease;
+        }
+        .rap-card:hover::after{opacity:1;animation:shineSweep .8s ease}
+        .btn{position:relative;overflow:hidden}.btn::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.18);transform:translateX(-105%) skewX(-18deg);transition:transform .45s ease}.btn:hover::after{transform:translateX(105%) skewX(-18deg)}
+        @keyframes cinematicExit{to{opacity:0;visibility:hidden;pointer-events:none;transform:scale(1.08)}}
+        @keyframes gridRush{from{background-position:0 0;transform:perspective(650px) rotateX(58deg) translateY(25%) scale(1.25)}to{background-position:0 640px;transform:perspective(650px) rotateX(58deg) translateY(8%) scale(.9)}}
+        @keyframes spinGlow{to{transform:rotate(360deg)}}
+        @keyframes orbitPulse{50%{transform:scale(1.08);opacity:.35}100%{transform:scale(1);opacity:1}}
+        @keyframes logoLaunch{0%{transform:scale(.25) rotate(-18deg);opacity:0}18%{transform:scale(1.12) rotate(4deg);opacity:1}70%{transform:scale(1) rotate(0)}100%{transform:translateY(-42px) scale(.82)}}
+        @keyframes logoBeat{50%{transform:scale(1.05);box-shadow:0 0 80px rgba(96,165,250,.95)}}
+        @keyframes ringSnap{50%{transform:scale(1.12) rotate(8deg);opacity:.55}}
+        @keyframes copyRise{to{opacity:1;transform:translateY(-10px)}}
+        @keyframes titleSlam{0%{opacity:0;transform:translateY(36px) scale(.86)}60%{opacity:1;transform:translateY(-5px) scale(1.04)}100%{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes barBounce{0%,100%{height:16px}50%{height:54px}}
+        @keyframes floatLogo{50%{transform:translateY(-4px) rotate(2deg)}}
+        @keyframes badgePulse{50%{box-shadow:0 0 24px rgba(96,165,250,.3);transform:translateY(-2px)}}
+        @keyframes heroLift{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes softReveal{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes cardReveal{to{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes shineSweep{to{transform:translateX(120%)}}
+        @media (prefers-reduced-motion:reduce){
+            .cinematic-intro{display:none}.main-site{animation:none;opacity:1}
+            *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+        }
+        @media(max-width:768px){
+            .orbit-one{width:270px;height:270px}.orbit-two{width:390px;height:390px}
+            .intro-logo-wrap{width:132px;height:132px}.intro-logo{width:104px;height:104px}
+            .intro-copy{bottom:18%}
+        }
+"""
+
+
+def cinematic_animation_js():
+    return """
+        function revealAnimatedElements(){
+            const items=document.querySelectorAll('.rap-card,.pinned-comments,.admin-panel');
+            if(!('IntersectionObserver' in window)){
+                items.forEach(i=>i.classList.add('revealed'));
+                return;
+            }
+            const observer=new IntersectionObserver(entries=>{
+                entries.forEach(entry=>{
+                    if(entry.isIntersecting){
+                        entry.target.classList.add('revealed');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },{threshold:.12});
+            items.forEach((item,index)=>{
+                item.style.animationDelay=(Math.min(index,8)*70)+'ms';
+                observer.observe(item);
+            });
+        }
+        const originalRenderRaps=renderRaps;
+        renderRaps=function(raps){
+            originalRenderRaps(raps);
+            requestAnimationFrame(revealAnimatedElements);
+        };
+        setTimeout(()=>document.getElementById('cinematicIntro')?.remove(),6200);
+        document.addEventListener('DOMContentLoaded',revealAnimatedElements);
+"""
+
+
 def inject_google_login(html):
     login_anchor = '<p class="subtitle">Login to like, comment, and get notified.</p>'
     register_anchor = '<p class="subtitle">Create an account to stay connected.</p>'
     html = html.replace(login_anchor, login_anchor + google_login_markup(), 1)
     html = html.replace(register_anchor, register_anchor + google_login_markup(), 1)
+    html = html.replace("</style>", cinematic_animation_css() + "\n    </style>", 1)
+    html = html.replace("<body>", "<body>" + cinematic_animation_markup(), 1)
+    html = html.replace("        init();", cinematic_animation_js() + "\n        init();", 1)
     return html
 
 
@@ -178,10 +311,11 @@ def auth_google():
     redirect_uri = "https://rapvault.onrender.com/auth/google/callback"
     return oauth.google.authorize_redirect(redirect_uri)
 
+
 @app.route("/auth/google/callback")
 def auth_google_callback():
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
-        return redirect("/")    
+        return redirect("/")
 
     token = oauth.google.authorize_access_token()
     info = token.get("userinfo") or oauth.google.userinfo()
