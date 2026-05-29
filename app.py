@@ -169,20 +169,19 @@ def google_verify():
 
 @app.route("/auth/google")
 def auth_google():
-    if "google" not in oauth:
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         return (
             "Google login is not configured yet. Add GOOGLE_CLIENT_ID and "
             "GOOGLE_CLIENT_SECRET in Render environment variables.",
             503,
         )
-    redirect_uri = url_for("auth_google_callback", _external=True)
+    redirect_uri = "https://rapvault.onrender.com/auth/google/callback"
     return oauth.google.authorize_redirect(redirect_uri)
-
 
 @app.route("/auth/google/callback")
 def auth_google_callback():
-    if "google" not in oauth:
-        return redirect("/")
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+        return redirect("/")    
 
     token = oauth.google.authorize_access_token()
     info = token.get("userinfo") or oauth.google.userinfo()
